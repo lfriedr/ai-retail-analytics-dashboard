@@ -62,7 +62,7 @@ function SimpleBarChart({ data }: { data: ChartData[] }) {
 
         {/* Tooltip — uses the original full name, not the truncated label */}
         <Tooltip
-          formatter={(value: number) => [`$${value.toLocaleString()}`, 'Revenue']}
+          formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
           labelFormatter={(_, payload) => payload?.[0]?.payload?.name ?? ''}
           contentStyle={{ borderRadius: '8px', border: '1px solid #e4e4e7', fontSize: 12, color: '#3f3f46' }}
           labelStyle={{ color: '#3f3f46', fontWeight: 600 }}
