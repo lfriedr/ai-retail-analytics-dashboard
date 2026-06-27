@@ -93,7 +93,7 @@ export default function InsightsPage() {
       {/* ── Generate Insights ─────────────────────────────────── */}
       <div className="bg-white rounded-xl border border-zinc-200 p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Generated Insights</h3>
+          <h3 className="font-semibold text-zinc-700">Generated Insights</h3>
           <button
             onClick={handleGenerateInsights}
             disabled={insightsLoading}
@@ -114,7 +114,7 @@ export default function InsightsPage() {
             ))}
           </div>
         ) : (
-          <p className="text-zinc-400 text-sm">
+          <p className="text-zinc-500 text-sm">
             {insightsLoading ? 'Claude is analyzing your data...' : 'Click "Generate Insights" to get started'}
           </p>
         )}
@@ -122,7 +122,7 @@ export default function InsightsPage() {
 
       {/* ── Ask a Question ─────────────────────────────────────── */}
       <div className="bg-white rounded-xl border border-zinc-200 p-6">
-        <h3 className="font-semibold mb-4">Ask a Question</h3>
+        <h3 className="font-semibold mb-4 text-zinc-700">Ask a Question</h3>
 
         {/* Question input form */}
         <form onSubmit={handleAskQuestion} className="flex gap-2 mb-4">
@@ -131,7 +131,7 @@ export default function InsightsPage() {
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder='e.g. "Which brands underperformed this month?"'
-            className="flex-1 border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-300"
+            className="flex-1 border border-zinc-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-300 placeholder:text-zinc-500"
           />
           <button
             type="submit"
@@ -146,7 +146,7 @@ export default function InsightsPage() {
         {answer ? (
           <p className="text-sm text-zinc-700 leading-relaxed">{answer}</p>
         ) : (
-          <p className="text-zinc-400 text-sm">
+          <p className="text-zinc-500 text-sm">
             {answerLoading ? 'Claude is thinking...' : 'Ask anything about your sales data'}
           </p>
         )}
