@@ -2,6 +2,9 @@
 // This is a Server Component — it fetches data directly from Supabase on the server
 // before sending any HTML to the browser. No loading spinners needed.
 
+// Prevent Vercel from caching this page — data changes on every upload
+export const dynamic = 'force-dynamic'
+
 import { supabase } from '../lib/supabase'
 import Charts from '../components/Charts'
 
