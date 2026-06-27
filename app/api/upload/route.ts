@@ -1,6 +1,7 @@
 // API route — lives at POST /api/upload
-// Runs on the server. Receives a CSV file, parses it, returns JSON.
+// Runs on the server. Receives a CSV file, parses it, saves to Supabase, returns JSON.
 import Papa from 'papaparse'
+import { supabase } from '../../lib/supabase'
 
 export interface SaleRow {
   date: string
@@ -56,6 +57,33 @@ export async function POST(request: Request) {
       revenue: Number(row['revenue'] ?? 0),
     }
   })
+
+  // Clear existing data before inserting — so each upload replaces the previous one
+  // .gt('id', '00000000-0000-0000-0000-000000000000') matches all rows (can't delete without a filter)
+  const { error: deleteError } = await supabase
+    .from('sales')
+    .delete()
+    .gt('id', '00000000-0000-0000-0000-000000000000')
+
+  if (deleteError) {
+    console.error('Supabase delete error:', JSON.stringify(deleteError, null, 2))
+    return Response.json(
+      { error: 'Failed to clear existing data', details: deleteError.message },
+      { status: 500 }
+    )
+  }
+
+  // Insert all parsed rows into the Supabase sales table in one batch
+  const { error } = await supabase.from('sales').insert(rows)
+
+  if (error) {
+    // Log full error to terminal so we can see exactly what Supabase rejected
+    console.error('Supabase insert error:', JSON.stringify(error, null, 2))
+    return Response.json(
+      { error: 'Failed to save to database', details: error.message, code: error.code },
+      { status: 500 }
+    )
+  }
 
   return Response.json({ rows, count: rows.length })
 }
