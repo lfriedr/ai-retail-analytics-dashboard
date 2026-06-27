@@ -130,7 +130,7 @@ export default function InsightsPage() {
             type="text"
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder='e.g. "Which brands underperformed this month?"'
+            placeholder='e.g. "Which brands underperformed in March?"'
             className="flex-1 border border-zinc-200 rounded-lg px-3 py-2 text-sm text-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-300 placeholder:text-zinc-500"
           />
           <button
