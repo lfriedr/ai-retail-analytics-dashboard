@@ -6,15 +6,16 @@ export const dynamic = 'force-dynamic'
 import { useEffect, useState } from 'react'
 import { getSessionId } from '../lib/session'
 import Charts from '../components/Charts'
-
-interface SaleRow {
-  date: string
-  product: string
-  brand: string
-  category: string
-  units: number
-  revenue: number
-}
+import {
+  getTotalRevenue,
+  getTotalUnits,
+  getTopBrand,
+  getMonthlyGrowth,
+  getRevenueByMonth,
+  getTopProducts,
+  getRevenueByBrand,
+  type SaleRow,
+} from '../lib/calculations'
 
 export default function DashboardPage() {
   const [rows, setRows] = useState<SaleRow[]>([])
@@ -54,51 +55,13 @@ export default function DashboardPage() {
     )
   }
 
-  // ── Stat card calculations ──────────────────────────────────────────────
-
-  const totalRevenue = rows.reduce((sum, r) => sum + r.revenue, 0)
-  const totalUnits = rows.reduce((sum, r) => sum + r.units, 0)
-
-  const brandRevenue: Record<string, number> = {}
-  for (const row of rows) {
-    brandRevenue[row.brand] = (brandRevenue[row.brand] ?? 0) + row.revenue
-  }
-  const topBrand = Object.entries(brandRevenue).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
-
-  const monthlyRevenue: Record<string, number> = {}
-  for (const row of rows) {
-    const month = row.date.slice(0, 7)
-    monthlyRevenue[month] = (monthlyRevenue[month] ?? 0) + row.revenue
-  }
-  const sortedMonths = Object.keys(monthlyRevenue).sort()
-  let growthText = '—'
-  if (sortedMonths.length >= 2) {
-    const last = monthlyRevenue[sortedMonths[sortedMonths.length - 1]]
-    const prev = monthlyRevenue[sortedMonths[sortedMonths.length - 2]]
-    const pct = ((last - prev) / prev) * 100
-    growthText = `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`
-  }
-
-  // ── Chart data ──────────────────────────────────────────────────────────
-
-  const byMonth = sortedMonths.map((month) => ({
-    name: new Date(month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
-    value: monthlyRevenue[month],
-  }))
-
-  const productRevenue: Record<string, number> = {}
-  for (const row of rows) {
-    const key = row.product.startsWith('Surfboard') ? 'Surfboards' : row.product
-    productRevenue[key] = (productRevenue[key] ?? 0) + row.revenue
-  }
-  const byProduct = Object.entries(productRevenue)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
-    .map(([name, value]) => ({ name, value }))
-
-  const byBrand = Object.entries(brandRevenue)
-    .sort((a, b) => b[1] - a[1])
-    .map(([name, value]) => ({ name, value }))
+  const totalRevenue = getTotalRevenue(rows)
+  const totalUnits = getTotalUnits(rows)
+  const topBrand = getTopBrand(rows)
+  const growthText = getMonthlyGrowth(rows)
+  const byMonth = getRevenueByMonth(rows)
+  const byProduct = getTopProducts(rows)
+  const byBrand = getRevenueByBrand(rows)
 
   return (
     <div>
