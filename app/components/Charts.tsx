@@ -64,12 +64,13 @@ function SimpleBarChart({ data }: { data: ChartData[] }) {
         <Tooltip
           formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
           labelFormatter={(_, payload) => payload?.[0]?.payload?.name ?? ''}
-          contentStyle={{ borderRadius: '8px', border: '1px solid #e4e4e7', fontSize: 12, color: '#3f3f46' }}
+          contentStyle={{ borderRadius: '8px', border: '1px solid #e4e4e7', fontSize: 12 }}
           labelStyle={{ color: '#3f3f46', fontWeight: 600 }}
+          itemStyle={{ color: '#94a3a7' }}
         />
 
         {/* The actual bars */}
-        <Bar dataKey="value" fill="#27272a" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="value" fill="#c5dbe0" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )

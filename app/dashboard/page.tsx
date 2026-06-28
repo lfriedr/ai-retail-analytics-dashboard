@@ -106,10 +106,10 @@ const byProduct = Object.entries(productRevenue)
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 mb-8 lg:grid-cols-4">
-        <StatCard label="Total Revenue" value={`$${totalRevenue.toLocaleString()}`} />
-        <StatCard label="Units Sold" value={totalUnits.toLocaleString()} />
-        <StatCard label="Top Brand" value={topBrand} />
-        <StatCard label="Monthly Growth" value={growthText} />
+        <StatCard label="Total Revenue" value={`$${totalRevenue.toLocaleString()}`} outlined />
+        <StatCard label="Units Sold" value={totalUnits.toLocaleString()} outlined />
+        <StatCard label="Top Brand" value={topBrand} outlined />
+        <StatCard label="Monthly Growth" value={growthText} outlined />
       </div>
 
       {/* Charts — client component receives pre-computed data from the server */}
@@ -118,11 +118,11 @@ const byProduct = Object.entries(productRevenue)
   )
 }
 
-function StatCard({ label, value }: { label: string; value: string }) {
+function StatCard({ label, value, outlined }: { label: string; value: string; outlined?: boolean }) {
   return (
-    <div className="bg-white rounded-xl border border-zinc-200 p-5">
-      <p className="text-xs text-zinc-500 uppercase tracking-wide mb-1 font-medium">{label}</p>
-      <p className="text-2xl font-semibold text-zinc-700">{value}</p>
+    <div className={`rounded-xl border p-5 ${outlined ? 'bg-transparent border-zinc-500' : 'bg-white border-zinc-200'}`}>
+      <p className={`text-xs uppercase tracking-wide mb-1 font-medium ${outlined ? 'text-zinc-400' : 'text-zinc-500'}`}>{label}</p>
+      <p className={`text-2xl font-semibold ${outlined ? 'text-zinc-200' : 'text-zinc-700'}`}>{value}</p>
     </div>
   )
 }

@@ -30,7 +30,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body className="flex min-h-screen bg-zinc-100 text-zinc-900">
+      <body className="flex min-h-screen text-zinc-900" style={{ backgroundColor: '#1A1A19' }}>
         {/* Sidebar stays fixed on the left on every page */}
         <Sidebar />
 

@@ -97,7 +97,8 @@ export default function InsightsPage() {
           <button
             onClick={handleGenerateInsights}
             disabled={insightsLoading}
-            className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40 hover:bg-zinc-700 transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40 transition-colors text-zinc-800"
+            style={{ backgroundColor: '#c5dbe0' }}
           >
             {insightsLoading ? 'Analyzing...' : 'Generate Insights'}
           </button>
@@ -136,7 +137,8 @@ export default function InsightsPage() {
           <button
             type="submit"
             disabled={answerLoading || !question.trim()}
-            className="bg-zinc-900 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40 hover:bg-zinc-700 transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40 transition-colors text-zinc-800"
+            style={{ backgroundColor: '#c5dbe0' }}
           >
             {answerLoading ? 'Thinking...' : 'Ask'}
           </button>

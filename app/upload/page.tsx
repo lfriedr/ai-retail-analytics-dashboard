@@ -159,7 +159,7 @@ export default function UploadPage() {
       <button
         onClick={handleUpload}
         disabled={!file || status === 'uploading'}
-        className="bg-zinc-900 text-white px-6 py-2.5 rounded-lg text-sm font-medium disabled:opacity-40 hover:bg-zinc-700 transition-colors"
+        className="bg-transparent border border-zinc-500 text-zinc-300 px-6 py-2.5 rounded-lg text-sm font-medium disabled:opacity-40 hover:border-zinc-300 transition-colors"
       >
         {status === 'uploading' ? 'Uploading...' : 'Upload & Parse'}
       </button>
@@ -172,13 +172,14 @@ export default function UploadPage() {
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="font-medium text-zinc-700 text-sm">Just exploring?</p>
+            <p className="font-medium text-zinc-400 text-sm">Just exploring?</p>
             <p className="text-zinc-500 text-xs">Load sample surf shop data instantly — no CSV needed</p>
           </div>
           <button
             onClick={handleLoadDemo}
             disabled={demoLoading}
-            className="flex-shrink-0 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-40 transition-colors"
+            className="flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-40 transition-colors text-zinc-800"
+          style={{ backgroundColor: '#c5dbe0' }}
           >
             {demoLoading ? 'Loading...' : 'Load Demo Data'}
           </button>
