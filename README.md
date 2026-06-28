@@ -1,5 +1,5 @@
 # AI Retail Analytics Dashboard
-Website Link: https://ai-retail-analytics-dashboard-gzdz7dfuz-lfriedr1.vercel.app/dashboard
+Website Link: https://ai-retail-analytics-dashboard.vercel.app
 
 A full-stack analytics platform where retailers can upload sales data and receive AI-generated business insights.
 
