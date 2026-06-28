@@ -1,14 +1,12 @@
-// Dashboard page — lives at /dashboard
-// This is a Server Component — it fetches data directly from Supabase on the server
-// before sending any HTML to the browser. No loading spinners needed.
+'use client'
 
 // Prevent Vercel from caching this page — data changes on every upload
 export const dynamic = 'force-dynamic'
 
-import { supabase } from '../lib/supabase'
+import { useEffect, useState } from 'react'
+import { getSessionId } from '../lib/session'
 import Charts from '../components/Charts'
 
-// The shape of a row coming back from Supabase
 interface SaleRow {
   date: string
   product: string
@@ -18,15 +16,33 @@ interface SaleRow {
   revenue: number
 }
 
-export default async function DashboardPage() {
-  // Fetch all sales rows from Supabase
-  // .from('sales') — which table
-  // .select('*') — all columns
-  const { data, error } = await supabase.from('sales').select('*')
-  console.log('Supabase result:', { data, error })
+export default function DashboardPage() {
+  const [rows, setRows] = useState<SaleRow[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // If fetch fails or no data yet, show empty state
-  if (error || !data || data.length === 0) {
+  useEffect(() => {
+    const sessionId = getSessionId()
+
+    fetch(`/api/sales?session_id=${sessionId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setRows(data.rows ?? [])
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  if (loading) {
+    return (
+      <div>
+        <h2 className="text-2xl font-bold mb-1">Dashboard</h2>
+        <p className="text-zinc-400 mb-8">Your store's sales overview</p>
+        <p className="text-zinc-500 text-sm">Loading...</p>
+      </div>
+    )
+  }
+
+  if (rows.length === 0) {
     return (
       <div>
         <h2 className="text-2xl font-bold mb-1">Dashboard</h2>
@@ -38,28 +54,19 @@ export default async function DashboardPage() {
     )
   }
 
-  const rows = data as SaleRow[]
-
   // ── Stat card calculations ──────────────────────────────────────────────
 
-  // Total revenue: add up every row's revenue
   const totalRevenue = rows.reduce((sum, r) => sum + r.revenue, 0)
-
-  // Total units: add up every row's units
   const totalUnits = rows.reduce((sum, r) => sum + r.units, 0)
 
-  // Top brand: group by brand, sum revenue, find the highest
   const brandRevenue: Record<string, number> = {}
   for (const row of rows) {
     brandRevenue[row.brand] = (brandRevenue[row.brand] ?? 0) + row.revenue
   }
   const topBrand = Object.entries(brandRevenue).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—'
 
-  // Monthly growth: compare the two most recent months
-  // First, group revenue by "YYYY-MM"
   const monthlyRevenue: Record<string, number> = {}
   for (const row of rows) {
-    // row.date is "2026-01-15" — slice(0, 7) gives "2026-01"
     const month = row.date.slice(0, 7)
     monthlyRevenue[month] = (monthlyRevenue[month] ?? 0) + row.revenue
   }
@@ -74,27 +81,21 @@ export default async function DashboardPage() {
 
   // ── Chart data ──────────────────────────────────────────────────────────
 
-  // Revenue by month — sorted chronologically
   const byMonth = sortedMonths.map((month) => ({
-    // Format "2026-01" → "Jan 26" for the chart label
     name: new Date(month + '-02').toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
     value: monthlyRevenue[month],
   }))
 
-  // Top 5 products by revenue.
-  // Surfboard variants (6'2, 7'0, etc.) are collapsed into one "Surfboards" entry
-  // so they don't split revenue across multiple chart bars.
   const productRevenue: Record<string, number> = {}
   for (const row of rows) {
     const key = row.product.startsWith('Surfboard') ? 'Surfboards' : row.product
     productRevenue[key] = (productRevenue[key] ?? 0) + row.revenue
   }
-const byProduct = Object.entries(productRevenue)
+  const byProduct = Object.entries(productRevenue)
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
     .map(([name, value]) => ({ name, value }))
 
-  // All brands by revenue
   const byBrand = Object.entries(brandRevenue)
     .sort((a, b) => b[1] - a[1])
     .map(([name, value]) => ({ name, value }))
@@ -104,7 +105,6 @@ const byProduct = Object.entries(productRevenue)
       <h2 className="text-2xl font-bold mb-1">Dashboard</h2>
       <p className="text-zinc-400 mb-8">Your store's sales overview</p>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-2 gap-4 mb-8 lg:grid-cols-4">
         <StatCard label="Total Revenue" value={`$${totalRevenue.toLocaleString()}`} outlined />
         <StatCard label="Units Sold" value={totalUnits.toLocaleString()} outlined />
@@ -112,7 +112,6 @@ const byProduct = Object.entries(productRevenue)
         <StatCard label="Monthly Growth" value={growthText} outlined />
       </div>
 
-      {/* Charts — client component receives pre-computed data from the server */}
       <Charts byMonth={byMonth} byProduct={byProduct} byBrand={byBrand} />
     </div>
   )

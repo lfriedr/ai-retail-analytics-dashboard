@@ -7,13 +7,16 @@ import { supabase } from '../../lib/supabase'
 const anthropic = new Anthropic()
 
 export async function POST(request: Request) {
-  const { question } = await request.json()
+  const { question, session_id } = await request.json()
 
   if (!question?.trim()) {
     return Response.json({ error: 'No question provided' }, { status: 400 })
   }
 
-  const { data, error } = await supabase.from('sales').select('*')
+  const { data, error } = await supabase
+    .from('sales')
+    .select('*')
+    .eq('session_id', session_id)
 
   if (error || !data || data.length === 0) {
     return Response.json({ error: 'No sales data found. Upload a CSV first.' }, { status: 400 })

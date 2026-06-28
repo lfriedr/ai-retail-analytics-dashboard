@@ -7,9 +7,13 @@ import { supabase } from '../../lib/supabase'
 // Initialize the Anthropic client — reads ANTHROPIC_API_KEY from .env.local
 const anthropic = new Anthropic()
 
-export async function POST() {
-  // Fetch all sales rows from Supabase
-  const { data, error } = await supabase.from('sales').select('*')
+export async function POST(request: Request) {
+  const { session_id } = await request.json()
+
+  const { data, error } = await supabase
+    .from('sales')
+    .select('*')
+    .eq('session_id', session_id)
 
   if (error || !data || data.length === 0) {
     return Response.json({ error: 'No sales data found. Upload a CSV first.' }, { status: 400 })

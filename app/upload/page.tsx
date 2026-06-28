@@ -41,6 +41,7 @@ const DEMO_PREVIEW = [
   { date: '2026-03-28', product: 'Boardshorts 18in', brand: 'Billabong', category: 'Boardshorts', units: 9, revenue: 405 },
 ]
 import { useRouter } from 'next/navigation'
+import { getSessionId } from '../lib/session'
 import type { SaleRow } from '../api/upload/route'
 
 export default function UploadPage() {
@@ -78,6 +79,7 @@ export default function UploadPage() {
 
     const formData = new FormData()
     formData.append('file', file)
+    formData.append('session_id', getSessionId())
 
     try {
       const res = await fetch('/api/upload', {
@@ -105,7 +107,11 @@ export default function UploadPage() {
   async function handleLoadDemo() {
     setDemoLoading(true)
     try {
-      const res = await fetch('/api/demo', { method: 'POST' })
+      const res = await fetch('/api/demo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: getSessionId() }),
+      })
       if (res.ok) {
         router.push('/dashboard')
       } else {
@@ -172,8 +178,8 @@ export default function UploadPage() {
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <p className="font-medium text-zinc-400 text-sm">Just exploring?</p>
-            <p className="text-zinc-500 text-xs">Load sample surf shop data instantly — no CSV needed</p>
+            <p className="font-medium text-zinc-400 text-base">Just exploring?</p>
+            <p className="text-zinc-500 text-sm">Load sample surf shop data instantly — no CSV needed</p>
           </div>
           <button
             onClick={handleLoadDemo}

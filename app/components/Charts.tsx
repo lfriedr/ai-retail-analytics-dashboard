@@ -18,38 +18,26 @@ interface ChartData {
   value: number
 }
 
-// Calculate how many characters fit per label based on number of bars.
-// Fewer bars = more space = longer labels allowed.
-function maxCharsForCount(count: number) {
-  if (count <= 3) return 20   // plenty of room, effectively no truncation
-  if (count <= 5) return 14   // enough to distinguish similar names like "Boardshorts 20in" vs "Boardshorts 18in"
-  return 8                    // tight — needed when 6+ brands are shown
-}
-
-function truncate(str: string, max: number) {
-  return str.length > max ? str.slice(0, max) + '…' : str
-}
-
-// Reusable bar chart wrapper so we don't repeat the same Recharts boilerplate three times
+// Reusable bar chart wrapper so we don't repeat the same Recharts boilerplate three times.
+// When there are more than 3 bars, labels are angled 45° so long names don't overlap.
 function SimpleBarChart({ data }: { data: ChartData[] }) {
-  const max = maxCharsForCount(data.length)
-  // Build a version of data with truncated names just for display on the axis.
-  // The full name is still in the tooltip via the original data.
-  const displayData = data.map((d) => ({ ...d, label: truncate(d.name, max) }))
+  const angled = data.length > 3
+  const bottomMargin = angled ? 60 : 4
 
   return (
-    // ResponsiveContainer makes the chart fill its parent div's width
     <ResponsiveContainer width="100%" height={240}>
-      <BarChart data={displayData} margin={{ top: 4, right: 16, left: 0, bottom: 4 }}>
-        {/* Light grey grid lines in the background */}
+      <BarChart data={data} margin={{ top: 4, right: 16, left: 0, bottom: bottomMargin }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
 
-        {/* X axis — uses the truncated label field */}
+        {/* Angle labels when there are many bars so long names don't overlap */}
         <XAxis
-          dataKey="label"
-          tick={{ fontSize: 12, fill: '#52525b' }}
+          dataKey="name"
+          tick={{ fontSize: 11, fill: '#52525b' }}
           axisLine={false}
           tickLine={false}
+          angle={angled ? -40 : 0}
+          textAnchor={angled ? 'end' : 'middle'}
+          interval={0}
         />
 
         {/* Y axis — the numbers on the left. tickFormatter adds a $ sign */}
@@ -63,8 +51,7 @@ function SimpleBarChart({ data }: { data: ChartData[] }) {
         {/* Tooltip — uses the original full name, not the truncated label */}
         <Tooltip
           formatter={(value) => [`$${Number(value).toLocaleString()}`, 'Revenue']}
-          labelFormatter={(_, payload) => payload?.[0]?.payload?.name ?? ''}
-          contentStyle={{ borderRadius: '8px', border: '1px solid #e4e4e7', fontSize: 12 }}
+contentStyle={{ borderRadius: '8px', border: '1px solid #e4e4e7', fontSize: 12 }}
           labelStyle={{ color: '#3f3f46', fontWeight: 600 }}
           itemStyle={{ color: '#94a3a7' }}
         />

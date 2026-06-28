@@ -1,6 +1,5 @@
 // API route — POST /api/demo
-// Clears the sales table and inserts hardcoded sample surf shop data.
-// This lets recruiters see a fully populated dashboard without uploading anything.
+// Clears this session's sales data and inserts hardcoded sample surf shop data.
 import { supabase } from '../../lib/supabase'
 
 const DEMO_DATA = [
@@ -15,7 +14,6 @@ const DEMO_DATA = [
   { date: '2026-01-22', product: "4/3 Wetsuit", brand: 'Rip Curl', category: 'Wetsuits', units: 2, revenue: 350 },
   { date: '2026-01-25', product: 'Surf Wax 3pk', brand: 'Sticky Bumps', category: 'Accessories', units: 12, revenue: 60 },
   { date: '2026-01-28', product: 'Boardshorts 18in', brand: 'Quiksilver', category: 'Boardshorts', units: 4, revenue: 180 },
-
   // February
   { date: '2026-02-02', product: "Surfboard 7'0", brand: 'Firewire', category: 'Surfboards', units: 1, revenue: 720 },
   { date: '2026-02-05', product: "4/3 Wetsuit", brand: "O'Neill", category: 'Wetsuits', units: 4, revenue: 680 },
@@ -27,7 +25,6 @@ const DEMO_DATA = [
   { date: '2026-02-20', product: 'Surf Wax 3pk', brand: 'Sticky Bumps', category: 'Accessories', units: 15, revenue: 75 },
   { date: '2026-02-22', product: 'Boardshorts 18in', brand: 'Quiksilver', category: 'Boardshorts', units: 5, revenue: 225 },
   { date: '2026-02-25', product: 'Fins Thruster', brand: 'FCS', category: 'Accessories', units: 4, revenue: 180 },
-
   // March
   { date: '2026-03-01', product: "Surfboard 6'4", brand: 'Channel Islands', category: 'Surfboards', units: 2, revenue: 1400 },
   { date: '2026-03-04', product: "4/3 Wetsuit", brand: 'Rip Curl', category: 'Wetsuits', units: 5, revenue: 875 },
@@ -41,12 +38,18 @@ const DEMO_DATA = [
   { date: '2026-03-28', product: 'Boardshorts 18in', brand: 'Billabong', category: 'Boardshorts', units: 9, revenue: 405 },
 ]
 
-export async function POST() {
-  // Clear existing data first (same pattern as the upload route)
+export async function POST(request: Request) {
+  const { session_id } = await request.json()
+
+  if (!session_id) {
+    return Response.json({ error: 'No session_id provided' }, { status: 400 })
+  }
+
+  // Only clear this session's data
   const { error: deleteError } = await supabase
     .from('sales')
     .delete()
-    .gt('id', '00000000-0000-0000-0000-000000000000')
+    .eq('session_id', session_id)
 
   if (deleteError) {
     return Response.json(
@@ -55,8 +58,10 @@ export async function POST() {
     )
   }
 
-  // Insert the demo rows
-  const { error } = await supabase.from('sales').insert(DEMO_DATA)
+  // Tag each row with this session's ID
+  const rows = DEMO_DATA.map((row) => ({ ...row, session_id }))
+
+  const { error } = await supabase.from('sales').insert(rows)
 
   if (error) {
     return Response.json(
@@ -65,5 +70,5 @@ export async function POST() {
     )
   }
 
-  return Response.json({ success: true, count: DEMO_DATA.length })
+  return Response.json({ success: true, count: rows.length })
 }

@@ -3,6 +3,7 @@
 'use client'
 
 import { useState } from 'react'
+import { getSessionId } from '../lib/session'
 
 export default function InsightsPage() {
   // The streamed text from Claude's insight generation
@@ -21,7 +22,11 @@ export default function InsightsPage() {
 
     try {
       // POST to our Claude insights API route
-      const res = await fetch('/api/insights', { method: 'POST' })
+      const res = await fetch('/api/insights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: getSessionId() }),
+      })
 
       if (!res.ok) {
         const data = await res.json()
@@ -58,7 +63,7 @@ export default function InsightsPage() {
       const res = await fetch('/api/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({ question, session_id: getSessionId() }),
       })
 
       if (!res.ok) {
